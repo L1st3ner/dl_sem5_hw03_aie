@@ -48,7 +48,7 @@ cd dl_sem5_hw03_aie
 ```
 3. Добавить основной template-репозиторий как дополнительный remote, чтобы можно было создавать Pull Request
 ```
-git remote add upstream https://github.com/teacher/dl_sem5_hw03_aie.git
+git remote add upstream https://github.com/L1st3ner/dl_sem5_hw03_aie.git
 git fetch upstream
 ```
 4. Создать ветку для решения задания и работать в ней:
@@ -101,7 +101,7 @@ git push origin my_solution
 
     7.2.1. Запустить обучение ViT локально:
     ```
-    python -m scripts.train_vit --epochs 10
+    python -m scripts.train_vit --epochs 10 --batch-size 64 --lr 1e-3
     ```
     7.2.2. После успешного обучения запушить `results/` в ваш форк:
     ```
@@ -109,7 +109,7 @@ git push origin my_solution
     git commit -m "Add training artifacts"
     git push origin my_solution
     ```
-    7.2.3. Для бонусных заданий, требующих GPU, обучение запускается аналогичным образом.
+    7.2.3. Для бонусных заданий, требующих GPU, локально обучение запускается аналогичным образом.
 
 8. Создать Pull Request из ветки `my_solution` вашего форка в `upstream/main` для запуска автотестов.
 9. Дождаться результатов CI. Если тесты прошли, всё хорошо.
