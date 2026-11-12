@@ -2,7 +2,7 @@
 
 <table>
   <thead>
-    <tr><th>Раздел</th><th>Задание</th><th>Max points</th></tr>
+    <tr><th>Раздел</th><th>Задание</th><th>Максимальный балл</th></tr>
   </thead>
   <tbody>
     <tr><td rowspan="7"><b>1. Токенизация и эмбеддинги</b></td>

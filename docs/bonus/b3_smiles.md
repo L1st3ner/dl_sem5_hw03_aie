@@ -35,22 +35,22 @@
 ```python
 class ESOLDataset(Dataset):
     def __init__(self, smiles: list[str], targets: list[float], tokenizer):
-        # уже реализовано: self.smiles, self.targets, self.tokenizer
+        # уже реализовано: self._smiles, self._targets, self._tokenizer
 
     def __len__(self) -> int:
         ...
 
-    def __getitem__(self, idx: int) -> tuple[torch.Tensor, torch.Tensor]:
+    def __getitem__(self, idx: int) -> dict[str, torch.Tensor]:
         ...
 ```
 
 **Требования:**
 - `__len__` возвращает число молекул в датасете.
-- `__getitem__` токенизирует SMILES-строку `self.smiles[idx]` через `self.tokenizer.encode(..., add_special=True)` (добавляет `<bos>` и `<eos>`) и возвращает кортеж:
-  - `input_ids`: `LongTensor [L]` — одномерный тензор id-шников токенов,
-  - `target`: `FloatTensor []` — **нуль-мерный** скаляр с z-нормализованным таргетом (нормализация уже выполнена в `load_esol`, студенту ничего пересчитывать не нужно).
-- Таргеты в `self.targets` уже являются `float`'ами — просто оберните в `torch.tensor(..., dtype=torch.float)`.
-- Если `tokenizer.encode` вернул пустой список (битая SMILES), бросьте `ValueError` с указанием проблемной строки **и** индекса — это сильно упростит отладку.
+- `__getitem__` токенизирует SMILES-строку `self._smiles[idx]` через `self._tokenizer.encode(..., add_special=True)` (добавляет `<bos>` и `<eos>`) и возвращает словарь:
+  - `input_ids`: `LongTensor [L]` — одномерный тензор ID токенов;
+  - `target`: `FloatTensor []` — нуль-мерный скаляр с z-нормализованным таргетом (нормализация уже выполнена в `load_esol`).
+- Таргеты в `self._targets` уже являются `float` — просто оберните значение в `torch.tensor(..., dtype=torch.float)`.
+- Если `tokenizer.encode` вернул пустой список (битая SMILES), бросьте ValueError с указанием проблемной строки и индекса.
 
 **Датасет:** `bonus/b3_smiles/data/esol.csv` — ESOL (Delaney, 2004), 1128 молекул, колонки `smiles` и `measured log solubility in mols per litre`. Загружается и делится на train/val/test через `load_esol` (уже реализовано). Автотесты проверяют корректность длины сплитов, форму и dtype возвращаемых тензоров, присутствие специальных токенов, обработку пустой токенизации.
 
@@ -113,14 +113,23 @@ class BagOfTokensBaseline(nn.Module):
     def forward(
         self,
         input_ids: torch.Tensor,
-        attention_mask: torch.Tensor | None = None,
+        attention_mask: torch.Tensor,
     ) -> torch.Tensor:
         ...
 ```
 
 **Требования:**
-- Архитектура: `nn.Embedding(vocab_size, embed_dim, padding_idx=pad_idx)` → сумма по размерности длины (`sum(dim=1)`) → `nn.Linear(embed_dim, 1)`. `padding_idx` гарантирует, что эмбеддинг паддинга — нулевой вектор, который не влияет на сумму, — поэтому `attention_mask` можно игнорировать.
+
+- Архитектура: `nn.Embedding(vocab_size, embed_dim, padding_idx=pad_idx) `→ masked mean pooling по размерности длины (dim=1) → `nn.Linear(embed_dim, 1)`.
 - При `vocab_size < 1` или `embed_dim < 1` бросьте `ValueError`.
+- Для исключения padding-позиций из усреднения используйте `attention_mask`. Маску необходимо привести к типу эмбеддингов и расширить до формы `[B, L, 1]`:
+
+```python
+emb = self.embed(input_ids)
+mask = attention_mask.unsqueeze(-1).to(emb.dtype)
+pooled = (emb * mask).sum(dim=1) / mask.sum(dim=1).clamp(min=1.0)
+```
+- `padding_idx` гарантирует, что эмбеддинг паддинга является нулевым вектором. Однако маска всё равно явно используется при усреднении.
 - Baseline умышленно игнорирует порядок токенов: `CCO` и `OCC` дадут одинаковое предсказание.
 - `forward` возвращает `FloatTensor [B, 1]` — той же формы, что у `SmilesTransformerRegressor`.
 
@@ -139,7 +148,7 @@ def train_regressor(
     model: nn.Module,
     train_loader: DataLoader,
     val_loader: DataLoader,
-    epochs: int = 50,
+    epochs: int,
     lr: float = 1e-3,
     device: str = "cpu",
 ) -> dict[str, list[float]]:
@@ -148,12 +157,12 @@ def train_regressor(
 **Требования:**
 - Оптимизатор: `Adam(model.parameters(), lr=lr)`. Loss: `nn.MSELoss()`.
 - В начале функции перенесите модель на `device` (`model.to(device)`). Каждый батч тоже переносите на `device` внутри цикла.
-- Каждый батч из `train_loader`/`val_loader` — словарь с ключами `input_ids`, `attention_mask`, `targets` (см. `esol_collate_fn`).
-- `loss = criterion(preds.squeeze(-1), targets)`.
+- Каждый батч из `train_loader`/`val_loader` — словарь с ключами `input_ids`, `attention_mask`, `target` (см. `esol_collate_fn`).
+- `loss = criterion(preds.squeeze(-1), target)`.
 - Используйте `optimizer.zero_grad(set_to_none=True)` — это чуть быстрее классического `zero_grad()` и даёт более понятные ошибки при отладке.
 - Train-loss за эпоху считается как средневзвешенное по числу примеров:
   ```python
-  running_sq += loss.item() * targets.numel()
+  running_sq += loss.item() * target.numel()
   epoch_train_mse = running_sq / total_samples
   ```
 - Val-loss считается через готовую функцию `evaluate_mse(model, val_loader, device=device)` из `_train_utils.py` — она возвращает MSE на валидации в z-единицах.
