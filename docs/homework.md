@@ -1,3 +1,38 @@
+# Разбалловка
+
+<table>
+  <thead>
+    <tr><th>Раздел</th><th>Задание</th><th>Max points</th></tr>
+  </thead>
+  <tbody>
+    <tr><td rowspan="7"><b>1. Токенизация и эмбеддинги</b></td>
+        <td>1.1</td><td align="right">2.5</td></tr>
+    <tr><td>1.2</td>  <td align="right">1.5</td></tr>
+    <tr><td>1.3a</td> <td align="right">1.0</td></tr>
+    <tr><td>1.3b</td> <td align="right">0.5</td></tr>
+    <tr><td>1.4</td>  <td align="right">0.5</td></tr>
+    <tr><td>1.5</td>  <td align="right">1.5</td></tr>
+    <tr><td><i>Итого</i></td><td align="right"><i>7.5</i></td></tr>
+    <tr><td rowspan="3"><b>2. Attention</b></td>
+        <td>2.1</td><td align="right">2.5</td></tr>
+    <tr><td>2.2</td>  <td align="right">2.5</td></tr>
+    <tr><td><i>Итого</i></td><td align="right"><i>5.0</i></td></tr>
+    <tr><td rowspan="3"><b>3. Transformer</b></td>
+        <td>3.1</td><td align="right">2.0</td></tr>
+    <tr><td>3.2</td>  <td align="right">2.0</td></tr>
+    <tr><td><i>Итого</i></td><td align="right"><i>4.0</i></td></tr>
+    <tr><td rowspan="4"><b>4. Vision Transformer</b></td>
+        <td>4.1</td><td align="right">1.0</td></tr>
+    <tr><td>4.2</td>  <td align="right">1.0</td></tr>
+    <tr><td>4.3</td>  <td align="right">1.5</td></tr>
+    <tr><td><i>Итого</i></td><td align="right"><i>3.5</i></td></tr>
+    <tr><td colspan="2"><b>Всего (основная часть)</b></td>
+        <td align="right"><b>20.0</b></td></tr>
+    <tr><td colspan="2">Бонус (B1–B4)</td>
+        <td align="right">+4.0</td></tr>
+  </tbody>
+</table>
+
 # Раздел 1. Токенизация и эмбеддинги
 
 > Обзорный разбор всех основных алгоритмов токенизации можно найти в [главе 6 Hugging Face NLP Course](https://huggingface.co/learn/nlp-course/chapter6/1).
