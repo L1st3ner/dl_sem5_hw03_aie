@@ -138,7 +138,7 @@ def sinusoidal_positional_encoding(
 ```
 
 Формулы:
-$$PE(p, 2k) = \sin\!\Bigl(\frac{p}{10000^{2k/d_{\text{model}}}}\Bigr), \qquad PE(p, 2k+1) = \cos\!\Bigl(\frac{p}{10000^{2k/d_{\text{model}}}}\Bigr)$$
+$$PE(p, 2k) = \sin\Bigl(\frac{p}{10000^{2k/d_{\text{model}}}}\Bigr), \qquad PE(p, 2k+1) = \cos\Bigl(\frac{p}{10000^{2k/d_{\text{model}}}}\Bigr)$$
 
 где $p$ — позиция ($0, 1, \ldots, \text{max_len} - 1$), $k$ — индекс пары измерений.
 
