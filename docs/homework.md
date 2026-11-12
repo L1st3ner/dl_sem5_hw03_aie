@@ -140,7 +140,7 @@ def sinusoidal_positional_encoding(
 Формулы:
 $$PE(p, 2k) = \sin\Bigl(\frac{p}{10000^{2k/d_{\text{model}}}}\Bigr), \qquad PE(p, 2k+1) = \cos\Bigl(\frac{p}{10000^{2k/d_{\text{model}}}}\Bigr)$$
 
-где $p$ — позиция ($0, 1, \ldots, \texttt{max\_len} - 1$), $k$ — индекс пары измерений.
+где $p$ — позиция от $0$ до $N-1$, где $N$ = `max_len`, $k$ — индекс пары измерений.
 
 **Требования:**
 - Вычисление должно быть полностью **векторизовано** средствами `torch`. Циклы по позициям или координатам запрещены.
@@ -157,7 +157,7 @@ class LearnablePositionalEmbedding(nn.Module):
 ```
 
 **Требования:**
-- `forward` прибавляет к входному тензору позиционные эмбеддинги для позиций $0, 1, \ldots, \text{seq\_len}-1$.
+- `forward` прибавляет к входному тензору позиционные эмбеддинги для позиций от $0$ до `seq_len - 1`.
 - При `seq_len > max_len` бросьте `ValueError`.
 - При `max_len < 1` или `d_model < 1` в конструкторе бросьте `ValueError`.
 - Позиционная матрица должна быть обучаемым параметром (`nn.Parameter` или `nn.Embedding`).
