@@ -119,7 +119,7 @@ class MultiTaskLoss(nn.Module):
 ```
 
 **Формула:**
-$$\mathcal{L} = \alpha \cdot \text{CE}(\text{cls_logits}, \text{cls_target}) + (1 - \alpha) \cdot \text{MSE}(\text{reg_pred}, \text{reg_target})$$
+$$\mathcal{L} = \alpha \cdot \operatorname{CE}(\text{cls\textunderscore logits}, \text{cls\textunderscore target}) + (1 - \alpha) \cdot \operatorname{MSE}(\text{reg\textunderscore pred}, \text{reg\textunderscore target})$$
 
 **Требования:**
 - CE-часть: `F.cross_entropy(cls_logits, cls_target)` — функция принимает **сырые логиты** (без softmax) и `int`-метки.
